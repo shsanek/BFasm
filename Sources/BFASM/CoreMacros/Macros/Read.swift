@@ -16,6 +16,9 @@ func ReadAllSymbols(vm: VirtualMachine, reg: BigRegister16) -> IMacros {
                 SwitchCase(",") {
                     vm.input.setNeedNextRead()
                 }
+                SwitchCase(13) {
+                    vm.input.setNeedNextRead()
+                }
                 SwitchCase {
                     Set(index: reg.highCell.zero1, 0)
                 }
