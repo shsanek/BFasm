@@ -20,7 +20,7 @@ func listFiles(in directory: URL, withExtension fileExtension: String) -> [URL] 
 func buildFile(_ url: URL) {
     let code = Builder(url.path).link()
     let name = url.deletingPathExtension().deletingPathExtension().lastPathComponent
-    try! code.write(to: result.appending(path: "\(name).bfasm"), atomically: true, encoding: .utf8)
+    try! (code + "\nrun").write(to: result.appending(path: "\(name).bfasm"), atomically: true, encoding: .utf8)
 }
 
 
