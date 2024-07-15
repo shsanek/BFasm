@@ -1,0 +1,15 @@
+startBlock skipSpace;
+    push r0;
+    startBlock;
+        input r0;
+        cmp r0, '\s';
+        j== %start;
+        cmp r0, '\n';
+        j== %start;
+        cmp r0, '\t';
+        j== %start;
+    endBlock;
+    resIn;
+    pop r0;
+    ret;
+endBlock;
