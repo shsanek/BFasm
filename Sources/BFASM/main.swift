@@ -3,6 +3,7 @@ import Foundation
 let vm = VirtualMachine()
 let pool = Command2Pool(vm: vm)
 let fullProgram = body {
+    vm.initMemory()
     Print(0, text: "Welcome to BF-ASM. Documentation on the commands can be found here (https://github.com/shsanek/BFasm). Enter your program:\n")
     Command2Parser(commands: pool.commands, vm: vm).loadProgram()
     MicroCore(pool: pool, vm: vm).loop()
