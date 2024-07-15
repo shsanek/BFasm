@@ -6,7 +6,7 @@ This is a project to generate Brainfuck code to execute BFASM assembler on a 16-
 
 ## BF Code
 
-[BF Code](Sources/Products/result.bf)
+[BF Code](Sources/Products/result.bf) - this is the system kernel code along with the `BFasm` parser
 
 ## Verified Interpreters
 
