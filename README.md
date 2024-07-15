@@ -11,7 +11,9 @@ This is a project to generate Brainfuck code to execute BFASM assembler on a 16-
 ## Verified Interpreters
 
 1. [nayuki.io](https://www.nayuki.io/page/brainfuck-interpreter-javascript)
-2. [brainfuck.michd.me](https://brainfuck.michd.me/) - some work is needed for input
+2. [brainfuck.michd.me](https://brainfuck.michd.me/) - some work is needed for input, not work copy/past to input
+3. [mitxela](https://mitxela.com/other/brainfuck) - not work copy/past to input
+4. [bf.doleczek.pl/](https://www.bf.doleczek.pl/) - not work copy/past to input
 
 ## Example Programs
 
