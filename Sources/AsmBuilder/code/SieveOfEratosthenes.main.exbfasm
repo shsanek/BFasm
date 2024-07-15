@@ -5,8 +5,15 @@ import functions/printInt10.exbfasm;
 import functions/readInt10.exbfasm;
 
 startBlock main;
+    out 'i';
+    out ':';
+    
     call %skipSpace;
     call %readInt10;
+    
+    out '\n';
+    out 'o';
+    out ':';
     
     mov r3, r0;
     mov r0, 1;
@@ -43,5 +50,3 @@ startBlock main;
 endBlock;
 
 exit 0;
-
-run
