@@ -1,5 +1,7 @@
 # BFASM
 
+![icon](https://github.com/user-attachments/assets/a4c9a7e7-d7ab-4ee1-878a-05be4c025ab0)
+
 You are looking at a project for generating Brainfuck code to be executed on a 16-bit RAM virtual machine called BFASM. The virtual machine operates with 2-byte cells (16 bits). It has access to 2^16 cells or 128KB of memory. The machine features 6 general-purpose registers (r0-r5), stack operations, conditional jump commands, and basic 16-bit integer arithmetic commands. The project has both entertainment and educational purposes.
 
 ## BF Code
