@@ -59,14 +59,16 @@ extension Array where Element == UInt8 {
         while index + MemoryCell.size < self.count {
             let cell = MemoryCell(firstByte: index)
             index += MemoryCell.size
-            result = result && (self[cell.backFlagIndex] == 0)
-            result = result && (self[cell.nextFlagIndex] == 0)
+            result = result && (self[cell.flags.lowValue] == 0)
+            result = result && (self[cell.flags.highValue] == 0)
+        
             result = result && (self[cell.commandFlag] == 0)
         
-            result = result && (self[cell.address.lowCell.zero0] == 0)
-            result = result && (self[cell.address.lowCell.zero1] == 0)
-            result = result && (self[cell.address.highCell.zero0] == 0)
-            result = result && (self[cell.address.highCell.zero1] == 0)
+            result = result && (self[cell.address.lowValue] == 0)
+            result = result && (self[cell.address.highValue] == 0)
+            
+            result = result && (self[cell.moveData.lowValue] == 0)
+            result = result && (self[cell.moveData.highValue] == 0)
 
             result = result && (cell.moveData.value(&self) == 0)
             if !result {

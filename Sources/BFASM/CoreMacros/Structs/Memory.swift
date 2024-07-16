@@ -32,20 +32,6 @@ struct Memory {
         }
     }
     
-    func moveInValue(address: BigRegister16, value: BigRegister16) -> IMacros {
-        body {
-            address.copy(to: firstCell.address)
-            value.move(to: firstCell.moveData)
-            BreakPoint(Self.memoryBreakPointInit)
-            moveToAddress(rightHandle: { (current, next) in
-                current.moveData.move(to: next.moveData)
-            }, endHandler: { (current) in
-                current.moveData.move(to: current.data)
-            })
-            BreakPoint(Self.memoryBreakPointDone)
-        }
-    }
-    
     func readValue(address: BigRegister16, value: BigRegister16) -> IMacros {
         body {
             address.copy(to: firstCell.address)
@@ -53,10 +39,10 @@ struct Memory {
             moveToAddress(leftHandle: { (current, back) in
                 current.moveData.move(to: back.moveData)
             }, endHandler: { cell in
-                cell.data.copy(to: cell.moveData, tmp: cell.address.lowCell.index - 1)
+                cell.data.copy(to: cell.moveData, tmp: cell.address.lowValue)
             })
+            firstCell.moveData.move(to: value)
             BreakPoint(Self.memoryBreakPointDone)
-            firstCell.moveData.copy(to: value)
         }
     }
     
@@ -76,23 +62,23 @@ struct Memory {
     
     func readValue(address: Data2ByteCell, value: Data2ByteCell) -> IMacros {
         body {
-            address.copy(to: firstCell.address)
+            address.copy(to: firstCell.address, tmp: firstCell.flags.index)
             BreakPoint(Self.memoryBreakPointInit)
             moveToAddress(leftHandle: { (current, back) in
                 current.moveData.move(to: back.moveData)
             }, endHandler: { cell in
                 body {
-                    cell.data.copy(to: cell.moveData, tmp: cell.address.lowCell.zero0)
+                    cell.data.copy(to: cell.moveData, tmp: cell.address.lowValue)
                 }
             })
-            BreakPoint(Self.memoryBreakPointDone)
             firstCell.moveData.move(to: value)
+            BreakPoint(Self.memoryBreakPointDone)
         }
     }
     
     func memoryProcess(address: Data2ByteCell, value: Data2ByteCell, commandIndex: Int) -> IMacros {
         body {
-            address.copy(to: firstCell.address)
+            address.copy(to: firstCell.address, tmp: firstCell.flags.index)
             FastIf(index: commandIndex) {
                 value.move(to: firstCell.moveData)
                 Set(index: firstCell.commandFlag, 1)
@@ -110,13 +96,13 @@ struct Memory {
                 }
             }, endHandler: { (current) in
                 body {
-                    Set(index: current.address.lowCell.zero0, 1)
+                    Set(index: current.address.lowValue, 1)
                     FastIf(index: current.commandFlag) {
                         current.moveData.move(to: current.data)
-                        Set(index: current.address.lowCell.zero0, 0)
+                        Set(index: current.address.lowValue, 0)
                     }
-                    FastIf(index: current.address.lowCell.zero0) {
-                        current.data.copy(to: current.moveData, tmp: current.address.highCell.zero0)
+                    FastIf(index: current.address.lowValue) {
+                        current.data.copy(to: current.moveData, tmp: current.address.highValue)
                         Set(index: current.commandFlag, 1)
                     }
                 }
@@ -124,6 +110,10 @@ struct Memory {
             BreakPoint(Self.memoryBreakPointDone)
             FastIf(index: firstCell.commandFlag) {
                 firstCell.moveData.move(to: value)
+            }
+            CustomBreakPoint { memory, currentPoint in
+                assert(currentPoint == firstCell.commandFlag)
+                assert(memory.validMemory(VirtualMachine()))
             }
         }
     }
@@ -136,51 +126,25 @@ struct Memory {
         let longNext = MemoryCell(firstByte: MemoryCell.size * 256)
         
         return body {
-            Set(index: cell.backFlagIndex, 0)
-            Set(index: cell.nextFlagIndex, 1)
-            SafeLoop(index: cell.nextFlagIndex) {
-                cell.address.highCell.if(requiredInit: true) {
-                    cell.address.highCell.dec()
-                    cell.address.move(to: longNext.address)
-                    Set(index: cell.nextFlagIndex, 0)
-                    
-                    rightHandle(cell, longNext)
-                    
-                    UnsafeMove(MemoryCell.size * 256)
-                    
-                    Add(index: cell.backFlagIndex, 1)
-                    Add(index: cell.nextFlagIndex, 1)
-
-                    BreakPoint(Self.memoryBreakPointBigMove)
-                } zero: {
-                    Set(index: cell.nextFlagIndex, 1)
-
-                    SafeLoop(index: cell.nextFlagIndex) {
-                        cell.address.lowCell.if(requiredInit: true) {
-                            Set(index: cell.nextFlagIndex, 0)
-
-                            cell.address.lowCell.dec()
-                            MoveValue(dest: shortNext.address.lowCell.index, src: cell.address.lowCell.index)
-
-                            rightHandle(cell, shortNext)
-        
-                            UnsafeMove(MemoryCell.size)
-
-                            Add(index: cell.backFlagIndex, 2)
-                            Add(index: cell.nextFlagIndex, 1)
-
-                            BreakPoint(Self.memoryBreakPointLittleMove)
-                        } zero: {
-                            SetZero(cell.nextFlagIndex)
-                        }
-                        SetCell(cell.nextFlagIndex)
-                    }
-                }
-                SetCell(cell.nextFlagIndex)
+            SafeLoop(index: cell.address.highValue) {
+                Add(index: cell.address.highValue, -1)
+                cell.address.move(to: longNext.address)
+                rightHandle(cell, longNext)
+                UnsafeMove(MemoryCell.size * 256)
+                Add(index: cell.flags.highValue, 1)
+                BreakPoint(Self.memoryBreakPointBigMove)
+            }
+            SafeLoop(index: cell.address.lowValue) {
+                Add(index: cell.address.lowValue, -1)
+                cell.address.move(to: shortNext.address)
+                rightHandle(cell, shortNext)
+                UnsafeMove(MemoryCell.size)
+                Add(index: cell.flags.lowValue, 1)
+                BreakPoint(Self.memoryBreakPointLittleMove)
             }
         }
     }
-    
+
     private func moveToLeft(
         leftHandle: (_ current: MemoryCell, _ back: MemoryCell) -> IMacros = { _, _ in emptyBody }
     ) -> IMacros {
@@ -190,42 +154,17 @@ struct Memory {
         let longBack = MemoryCell(firstByte: -MemoryCell.size * 256)
         
         return body {            
-            SetCell(cell.backFlagIndex)
-            SafeLoop(index: cell.backFlagIndex) {
-                Set(index: cell.address.lowCell.index, 1)
-                Set(index: cell.address.highCell.index, 0)
-                
-                Add(index: cell.backFlagIndex, -1)
-                SafeLoop(index: cell.backFlagIndex) {
-                    Set(index: cell.address.highCell.index, 1)
-                    Set(index: cell.address.lowCell.index, 0)
-                    Set(index: cell.backFlagIndex, 0)
-                }
-                
-                SetCell(cell.address.highCell.index)
-                SafeLoop(index: cell.address.highCell.index) {
-                    leftHandle(cell, shortBack)
-                    
-                    UnsafeMove(-MemoryCell.size)
-                    
-                    Set(index: cell.address.highCell.index, 0)
-                    BreakPoint(Self.memoryBreakPointLittleBack)
-                }
-                
-                SetCell(cell.address.lowCell.index)
-                SafeLoop(index: cell.address.lowCell.index) {
-                    Set(index: cell.backFlagIndex, 1)
-                    SafeLoop(index: cell.backFlagIndex) {
-                        leftHandle(cell, longBack)
-
-                        UnsafeMove(-MemoryCell.size * 256)
-                        
-                        SetCell(cell.backFlagIndex)
-                        BreakPoint(Self.memoryBreakPointBigBack)
-                    }
-                    Set(index: cell.address.lowCell.index, 0)
-                }
-                SetCell(cell.backFlagIndex)
+            SafeLoop(index: cell.flags.lowValue) {
+                leftHandle(cell, shortBack)
+                Add(index: cell.flags.lowValue, -1)
+                UnsafeMove(-MemoryCell.size)
+                BreakPoint(Self.memoryBreakPointLittleBack)
+            }
+            SafeLoop(index: cell.flags.highValue) {
+                leftHandle(cell, longBack)
+                Add(index: cell.flags.highValue, -1)
+                UnsafeMove(-MemoryCell.size * 256)
+                BreakPoint(Self.memoryBreakPointBigBack)
             }
         }
     }
