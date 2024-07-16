@@ -1,6 +1,7 @@
 startBlock printInt10;
     push r0;
     push r1;
+    mov r0, s0;
     mov r1, 0;
     fPush 10;
 

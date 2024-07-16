@@ -1,0 +1,146 @@
+jmp %main;
+
+import functions/skipSpace.exbfasm;
+import functions/printInt10.exbfasm;
+
+startBlock main;
+    call %skipSpace;
+
+    mov r0, cs;
+    add r0, 1; #current command;
+
+
+    #load program;
+    startBlock;
+        input r1;
+        cmp r1, '\e';
+        j== %end;
+        push r1;
+        jmp %start;
+    endBlock;
+    
+    out 'D'; out 'i'; out 'd'; out '\s'; out 'L'; out 'o'; out 'a'; out 'd'; out ':';
+    mov s0, cs;
+    sub s0, r0;
+    call %printInt10;
+
+    mov r2, cs;
+    add r2, 2; # start memory;
+    add r3, 0; # current memory;
+
+    mov r4, r2;
+    add r4, r3;
+
+    startBlock mainLoop;
+        mov r1, ptrr0;
+        inc r0;
+
+        if r1 == '+';
+            mov r5, ptrr4;
+            inc r5;
+            if r5 == 256;
+                mov r5, 0;
+            endBlock;
+            
+            mov ptrr4, r5;
+            jmp %mainLoop;
+        endBlock;
+
+        if r1 == '-';
+            mov r5, ptrr4;
+            if r5 == 0;
+                mov r5, 256;
+            endBlock;
+            
+            dec r5;
+            mov ptrr4, r5;
+            jmp %mainLoop;
+        endBlock;
+    
+        if r1 == '>';
+            inc r3;
+            if r3 == 4096;
+                mov r3, 0;
+            endBlock;
+            
+            mov r4, r2;
+            add r4, r3;
+            jmp %mainLoop;
+        endBlock;
+    
+        if r1 == '<';
+            if r3 == 0;
+                mov r3, 4096;
+            endBlock;
+            
+            dec r3;
+            jmp %mainLoop;
+        endBlock;
+
+        if r1 == '[';
+            if ptrr4 != 0;
+                jmp %mainLoop;
+            endBlock;
+            
+            mov r5, 1;
+            if r5 != 0;
+                mov r1, ptrr0;
+                inc r0;
+            
+                if r1 == '[';
+                    inc r5;
+                endBlock;
+                
+                if r1 == ']';
+                    dec r5;
+                endBlock;
+                
+                jmp %start;
+            endBlock;
+            
+            jmp %mainLoop;
+        endBlock;
+    
+        if r1 == ']';
+            if ptrr4 == 0;
+                jmp %mainLoop;
+            endBlock;
+        
+            mov r5, 1;
+            sub r0, 2;
+        
+            if r5 != 0;
+                mov r1, ptrr0;
+                dec r0;
+            
+                if r1 == ']';
+                    inc r5;
+                endBlock;
+                
+                if r1 == '[';
+                    dec r5;
+                endBlock;
+                
+                jmp %start;
+            endBlock;
+            add r0, 2;
+            jmp %mainLoop;
+        endBlock;
+    
+        if r1 == '\z';
+            input ptrr4;
+            jmp %mainLoop;
+        endBlock;
+    
+        if r1 == '.';
+            out ptrr4;
+            jmp %mainLoop;
+        endBlock;
+        
+        if r1 != 0;
+            jmp %mainLoop;
+        endBlock;
+    endBlock;
+endBlock;
+
+exit 0;

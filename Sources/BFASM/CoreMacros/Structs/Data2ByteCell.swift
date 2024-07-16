@@ -3,8 +3,13 @@ struct Data2ByteCell {
 
     let index: Int
     
+    let highValue: Int
+    let lowValue: Int
+    
     init(firstByte: Int) {
         self.index = firstByte
+        self.highValue = firstByte + 1
+        self.lowValue = firstByte
     }
     
     func move(to cell: Data2ByteCell) -> IMacros {

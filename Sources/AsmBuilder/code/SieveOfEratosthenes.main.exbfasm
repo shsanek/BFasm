@@ -42,6 +42,7 @@ startBlock main;
         label save;
         inc r5;
         push r0;
+        mov s0, r0;
         call %printInt10;
         out '\s';
         label notSave;

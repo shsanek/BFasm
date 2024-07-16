@@ -45,6 +45,12 @@ class Builder {
         if arg == "'\\s'" {
             return "\(" ".first!.asciiValue!)"
         }
+        if arg == "'\\z'" {
+            return "\(",".first!.asciiValue!)"
+        }
+        if arg == "'\\e'" {
+            return "\(";".first!.asciiValue!)"
+        }
         if arg.first == "'" {
             assert(arg.last == "'" && arg.count == 3)
             return "\(arg.dropFirst().dropLast().first!.asciiValue!)"
@@ -68,6 +74,56 @@ class Builder {
             openFile(elements[1])
             return
         }
+        if elements[0] == "if" {
+            let a = elements[1]
+            let con = elements[2]
+            let b = elements[3]
+            
+            let name = ":\(index)"
+            currentBlock = .init(name: name, parent: currentBlock)
+            currentBlock.labels["start"] = index
+            currentBlock.appendRow(shift + "#start block \(name);")
+            
+            print("o :\(input.replacingOccurrences(of: "\n", with: "").replacingOccurrences(of: "\t", with: ""))")
+
+            var size = (checkArgument(argument(a)) || checkArgument(argument(b))) ? 2 : 1
+            index += size
+            currentBlock.appendRow(shift + "cmp \(argument(a)), \(argument(b)); # \(index - size) \(size);")
+            
+            size = 2
+            if con == "==" {
+                index += 2
+                currentBlock.appendRow("j!= %end; # \(index - size) \(size);")
+                return
+            }
+            if con == "!=" {
+                index += 2
+                currentBlock.appendRow("j== %end; # \(index - size) \(size);")
+                return
+            }
+            if con == ">" {
+                index += 2
+                currentBlock.appendRow("j=< %end; # \(index - size) \(size);")
+                return
+            }
+            if con == ">=" {
+                index += 2
+                currentBlock.appendRow("j< %end; # \(index - size) \(size);")
+                return
+            }
+            if con == "<=" {
+                index += 2
+                currentBlock.appendRow("j> %end; # \(index - size) \(size);")
+                return
+            }
+            if con == "<" {
+                index += 2
+                currentBlock.appendRow("j=> %end; # \(index - size) \(size);")
+                return
+            }
+            assert(false)
+            return
+        }
         if elements[0] == "startBlock" {
             assert(elements.count < 3)
             var name = ":\(index)"
@@ -78,6 +134,7 @@ class Builder {
             currentBlock = .init(name: name, parent: currentBlock)
             currentBlock.labels["start"] = index
             currentBlock.appendRow(shift + "#start block \(name);")
+            print("o :\(input.replacingOccurrences(of: "\n", with: "").replacingOccurrences(of: "\t", with: ""))")
             return
         }
         if elements[0] == "endBlock" {
@@ -85,6 +142,7 @@ class Builder {
             let text = currentBlock.link()
             currentBlock = currentBlock.parent!
             currentBlock.appendRow(text)
+            print("c :\(input.replacingOccurrences(of: "\n", with: "").replacingOccurrences(of: "\t", with: ""))")
             return
         }
         if elements[0] == "label" {

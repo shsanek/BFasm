@@ -8,7 +8,10 @@ struct LocalCell: IMacros {
     }
 
     func generateCode(manager: SelectedCellManager) -> String {
-        return content.generateCode(manager: SelectedCellManager(activeBreakPoints: manager.activeBreakPoints))
+        body {
+            content
+            SetCell(0)
+        }.generateCode(manager: SelectedCellManager(activeBreakPoints: manager.activeBreakPoints))
     }
 
     func checkShift(manager: SelectedCellManager) -> Int? {
