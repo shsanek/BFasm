@@ -118,7 +118,7 @@ struct Commands2 {
         needSaveDestination: true,
         needLoadDestination: true,
         name: "dec",
-        action: { vm in vm.destination.inc16() })
+        action: { vm in vm.destination.dec16() })
     
     let exit: Command2 = .init(
         needSaveDestination: false,
