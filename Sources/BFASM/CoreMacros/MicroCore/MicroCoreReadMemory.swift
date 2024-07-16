@@ -51,9 +51,9 @@ struct MicroCore {
             vm.indexCommand.set(0)
             SafeLoop(index: vm.flags.runFlag) {
                 microCode.commandStack.currentCode.set(MicroCoreCommand.prepareLoadCommand.rawValue)
-                //                        CustomBreakPoint { memory, currentPoint in
-                //                            printInputState(&memory)
-                //                        }
+//                CustomBreakPoint { memory, currentPoint in
+//                    printInputState(&memory)
+//                }
                 SafeLoop(index: microCode.commandStack.currentCode.value) {
                     Switch(cell: microCode.commandStack.currentCode) {
                         SwitchCase(UInt8(MicroCoreCommand.commandMemory.rawValue)) {

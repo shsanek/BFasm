@@ -111,10 +111,6 @@ struct Memory {
             FastIf(index: firstCell.commandFlag) {
                 firstCell.moveData.move(to: value)
             }
-            CustomBreakPoint { memory, currentPoint in
-                assert(currentPoint == firstCell.commandFlag)
-                assert(memory.validMemory(VirtualMachine()))
-            }
         }
     }
     
