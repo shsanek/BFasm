@@ -1,146 +1,280 @@
-jmp %main;
+jmp %main%;
 
 import functions/skipSpace.exbfasm;
 import functions/printInt10.exbfasm;
 
+#def MEMORY_SIZE 4096;
+
+#def CODE_MOVE_RIGHT 256;
+#def CODE_MOVE_LEFT 512;
+#def CODE_LOOP_START 768;
+#def CODE_LOOP_END 1024;
+#def CODE_INPUT 1280;
+#def CODE_OUTPUT 1536;
+#def CODE_ZERO 1792;
+
 startBlock main;
-    call %skipSpace;
+    call %skipSpace%;
 
     mov r0, cs;
-    add r0, 1; #current command;
-
-
-    #load program;
-    startBlock;
-        input r1;
-        cmp r1, '\e';
-        j== %end;
-        push r1;
-        jmp %start;
+    mod r0, 256;
+    if r0 != 0;
+        mov r1, 256;
+        sub r1, r0;
+        add cs, r1;
     endBlock;
-    
-    out 'D'; out 'i'; out 'd'; out '\s'; out 'L'; out 'o'; out 'a'; out 'd'; out ':';
-    mov s0, cs;
-    sub s0, r0;
-    call %printInt10;
 
     mov r2, cs;
-    add r2, 2; # start memory;
-    add r3, 0; # current memory;
+    add r2, 512;
+    mov r0, r2;
 
-    mov r4, r2;
-    add r4, r3;
-
-    startBlock mainLoop;
-        mov r1, ptrr0;
-        inc r0;
-
-        if r1 == '+';
-            mov r5, ptrr4;
-            inc r5;
+    #load program;
+    startBlock readLoop;
+        mov r5, 0;
+        startBlock Sum;
+            input r1;
             if r5 == 256;
                 mov r5, 0;
             endBlock;
-            
-            mov ptrr4, r5;
-            jmp %mainLoop;
-        endBlock;
-
-        if r1 == '-';
-            mov r5, ptrr4;
-            if r5 == 0;
-                mov r5, 256;
+            if r5 == 65535;
+                mov r5, 255;
             endBlock;
-            
-            dec r5;
-            mov ptrr4, r5;
-            jmp %mainLoop;
-        endBlock;
-    
-        if r1 == '>';
-            inc r3;
-            if r3 == 4096;
-                mov r3, 0;
+            if r1 == '+';
+                inc r5;
+                jmp %Sum%;
             endBlock;
-            
-            mov r4, r2;
-            add r4, r3;
-            jmp %mainLoop;
-        endBlock;
-    
-        if r1 == '<';
-            if r3 == 0;
-                mov r3, 4096;
+            if r1 == '-';
+                dec r5;
+                jmp %Sum%;
             endBlock;
-            
-            dec r3;
-            jmp %mainLoop;
         endBlock;
-
+        resIn;
+        if r5 != 0;
+            mov ptrr2, r5;
+            inc r2;
+        endBlock;
+        
+        mov r5, 0;
+        mov r4, 0;
+        startBlock Mov;
+            input r1;
+            if r1 == '>';
+                inc r5;
+                jmp %Mov%;
+            endBlock;
+            if r1 == '<';
+                inc r4;
+                jmp %Mov%;
+            endBlock;
+        endBlock;
+        resIn;
+        if r4 > r5;
+            sub r4, r5;
+            if r4 >= 256;
+                mov ptrr2, %CODE_MOVE_LEFT%;
+                inc r2;
+                mov ptrr2, r4;
+                inc r2;
+            else;
+                add r4, %CODE_MOVE_LEFT%;
+                mov ptrr2, r4;
+                inc r2;
+            endBlock;
+        endBlock;
+        if r5 > r4;
+            sub r5, r4;
+            if r5 >= 256;
+                mov ptrr2, %CODE_MOVE_RIGHT%;
+                inc r2;
+                mov ptrr2, r5;
+                inc r2;
+            else;
+                add r5, %CODE_MOVE_RIGHT%;
+                mov ptrr2, r5;
+                inc r2;
+            endBlock;
+        endBlock;
+        if r5 != 0;
+            jmp %readLoop%;
+        endBlock;
+        if r4 != 0;
+            jmp %readLoop%;
+        endBlock;
+        
+        input r1;
         if r1 == '[';
-            if ptrr4 != 0;
-                jmp %mainLoop;
-            endBlock;
-            
-            mov r5, 1;
-            if r5 != 0;
-                mov r1, ptrr0;
-                inc r0;
-            
-                if r1 == '[';
-                    inc r5;
-                endBlock;
-                
-                if r1 == ']';
-                    dec r5;
-                endBlock;
-                
-                jmp %start;
-            endBlock;
-            
-            jmp %mainLoop;
+            mov ptrr2, %CODE_LOOP_START%;
+            inc r2;
+            push r2;
+            inc r2;
+            jmp %readLoop%;
         endBlock;
-    
+        
         if r1 == ']';
-            if ptrr4 == 0;
-                jmp %mainLoop;
-            endBlock;
-        
-            mov r5, 1;
-            sub r0, 2;
-        
-            if r5 != 0;
-                mov r1, ptrr0;
-                dec r0;
+            pop r5;
+            mov r4, r5;
             
-                if r1 == ']';
-                    inc r5;
+            inc r4;
+            
+            mov r3, r4;
+            if r3 == 1;
+                dec r2;
+                mov r3, ptrr2;
+                if r3 == 255;
+                    dec r2;
+                    mov ptrr2, %CODE_ZERO%;
+                    inc r2;
+                    jmp %readLoop%;
                 endBlock;
-                
-                if r1 == '[';
-                    dec r5;
-                endBlock;
-                
-                jmp %start;
+                inc r2;
             endBlock;
-            add r0, 2;
-            jmp %mainLoop;
-        endBlock;
-    
-        if r1 == '\z';
-            input ptrr4;
-            jmp %mainLoop;
-        endBlock;
-    
-        if r1 == '.';
-            out ptrr4;
-            jmp %mainLoop;
+                        
+            mov ptrr2, %CODE_LOOP_END%;
+            inc r2;
+            mov ptrr2, r4;
+            
+            inc r2;
+            mov ptrr5, r2;
+            jmp %readLoop%;
         endBlock;
         
-        if r1 != 0;
-            jmp %mainLoop;
+        if r1 == '.';
+            mov ptrr2, %CODE_OUTPUT%;
+            inc r2;
+            jmp %readLoop%;
+        endBlock;
+        
+        if r1 == '\z';
+            mov ptrr2, %CODE_INPUT%;
+            inc r2;
+            jmp %readLoop%;
+        endBlock;
+        
+        if r1 == '\e';
+            mov ptrr2, 0;
+            inc r2;
+            jmp %endRead%;
+        endBlock;
+        
+        jmp %readLoop%;
+    endBlock;
+    label endRead;
+    
+    out '\n'; out 'D'; out 'i'; out 'd';  out '\s'; out 'l'; out 'o'; out 'a'; out 'd'; out ':';
+    mov s0, r2;
+    sub s0, r0;
+    call %printInt10%;
+    out '\n';
+
+    mov r3, r0;
+    
+    startBlock printLoop;
+        jmp %end%;
+        if r3 < r2;
+            mov s0, r3;
+            call %printInt10%;
+            out ':';
+            mov s0, ptrr3;
+            call %printInt10%;
+            inc r3;
+            out '\n';
+            jmp %printLoop%;
         endBlock;
     endBlock;
+    #out '\n';
+
+    add r2, 1;
+    mov r3, 0;
+    mov r4, r2;
+    mov r5, 0;
+
+    startBlock runLoop;
+    
+        mov r1, ptrr0;
+        inc r0;
+        if r1 == %CODE_ZERO%;
+            mov r5, 0;
+            jmp %runLoop%;
+        endBlock;
+
+        
+        if r1 == %CODE_OUTPUT%;
+            out r5;
+            jmp %runLoop%;
+        endBlock;
+        
+        if r1 == %CODE_INPUT%;
+            input r5;
+            jmp %runLoop%;
+        endBlock;
+        
+        if r1 == %CODE_LOOP_END%;
+            if r5 != 0;
+                mov r0, ptrr0;
+                jmp %runLoop%;
+            endBlock;
+            inc r0;
+            jmp %runLoop%;
+        endBlock;
+        
+        if r1 == %CODE_LOOP_START%;
+            if r5 == 0;
+                mov r0, ptrr0;
+                jmp %runLoop%;
+            endBlock;
+            inc r0;
+            jmp %runLoop%;
+        endBlock;
+        
+        if r1 >= %CODE_MOVE_LEFT%;
+            sub r1, %CODE_MOVE_LEFT%;
+            if r1 != 0;
+                sub r3, r1;
+                jmp %updatePosition%;
+            endBlock;
+            sub r3, ptrr0;
+            inc r0;
+            jmp %updatePosition%;
+        endBlock;
+        
+        if r1 >= %CODE_MOVE_RIGHT%;
+            sub r1, %CODE_MOVE_RIGHT%;
+            if r1 != 0;
+                add r3, r1;
+                jmp %updatePosition%;
+            endBlock;
+            add r3, ptrr0;
+            inc r0;
+            jmp %updatePosition%;
+        endBlock;
+        
+        if r1 == 0;
+            jmp %endRunLoop%;
+        endBlock;
+        
+        add r5, r1;
+        if r5 > 255;
+            sub r5, 256;
+        endBlock;
+        
+        jmp %runLoop%;
+        label updatePosition;
+        mov ptrr4, r5;
+        if r3 >= %MEMORY_SIZE%;
+            mod r3, %MEMORY_SIZE%;
+        endBlock;
+        if r3 < 0;
+            add r3, %MEMORY_SIZE%;
+        endBlock;
+        mov r4, r2;
+        add r4, r3;
+        mov r5, ptrr4;
+
+        jmp %runLoop%;
+    endBlock;
+    label endRunLoop;
+    
 endBlock;
 
 exit 0;
+

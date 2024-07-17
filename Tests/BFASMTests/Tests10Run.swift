@@ -13,7 +13,7 @@ class Tests10Run: XCTestCase {
         run
         """
         let pool = CommandPool(vm: vm)
-        brainfuckInterpreter(input: code, &memory) {
+        brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             pool.parser.loadProgram()
             pool.executor.runProgram()
@@ -48,7 +48,7 @@ class Tests10Run: XCTestCase {
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        brainfuckInterpreter(input: code, &memory) {
+        brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             core.loop()
@@ -87,7 +87,7 @@ class Tests10Run: XCTestCase {
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        brainfuckInterpreter(input: code, &memory) {
+        brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             core.loop()
@@ -118,7 +118,7 @@ class Tests10Run: XCTestCase {
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        brainfuckInterpreter(input: code, &memory) {
+        brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             core.loop()
@@ -142,7 +142,7 @@ class Tests10Run: XCTestCase {
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        brainfuckInterpreter(input: code, &memory) {
+        brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             core.loop()
@@ -163,7 +163,7 @@ class Tests10Run: XCTestCase {
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        brainfuckInterpreter(input: code, &memory) {
+        brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             core.loop()
@@ -185,7 +185,7 @@ class Tests10Run: XCTestCase {
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        let out = brainfuckInterpreter(input: code, &memory) {
+        brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             CustomBreakPoint { memory, currentPoint in
@@ -222,7 +222,7 @@ class Tests10Run: XCTestCase {
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        brainfuckInterpreter(input: code, &memory) {
+        brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             CustomBreakPoint { memory, currentPoint in
@@ -293,7 +293,7 @@ class Tests10Run: XCTestCase {
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        let out = brainfuckInterpreter(input: code, &memory) {
+        brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             core.loop()
@@ -362,7 +362,7 @@ class Tests10Run: XCTestCase {
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        brainfuckInterpreter(input: code, &memory) {
+        brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             CustomBreakPoint { memory, currentPoint in
@@ -427,12 +427,11 @@ class Tests10Run: XCTestCase {
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        let out = brainfuckInterpreter(input: code, &memory) {
+        brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             core.loop()
         }
-        print(out)
         XCTAssert(vm.r0.value(&memory) == 12345)
     }
     
@@ -475,7 +474,7 @@ class Tests10Run: XCTestCase {
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        let out = brainfuckInterpreter(input: code, &memory) {
+        let out = brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             core.loop()
@@ -485,111 +484,48 @@ class Tests10Run: XCTestCase {
     }
     
     
+    func exampleProgram(_ name: String) -> String {
+        let url = URL(filePath: #file).deletingLastPathComponent().appending(path: "../../Sources/AsmBuilder/example/\(name).bfasm")
+        return try! String(contentsOf: url)
+    }
+    
     func test13RunProgram() {
         var memory: [UInt8] = .init(repeating: 0, count: 256 * 256 * 50)
         let vm = VirtualMachine()
         let code = """
-        jmp 63; # 0 2;
-
-        #start block skipSpace;
-        push r0; # 2 1;
-
-        #start block :3;
-        input r0; # 3 1;
-        cmp r0, 32; # 4 2;
-        j== 3; # 6 2;
-        cmp r0, 10; # 8 2;
-        j== 3; # 10 2;
-        cmp r0, 9; # 12 2;
-        j== 3; # 14 2;
-        resIn; # 16 1;
-        pop r0; # 17 1;
-        ret; # 18 1;
-
-        #start block printInt10;
-        push r0; # 19 1;
-        push r1; # 20 1;
-        mov r1, 0; # 21 2;
-        fPush 10; # 23 2;
-
-        #start block :25;
-        div r0, 10; # 25 2;
-        cmp r0; # 27 1;
-        j> 25; # 28 2;
-
-        #start block :30;
-        fPop r0; # 30 1;
-        cmp r0, 10; # 31 2;
-        j== 40; # 33 2;
-        add r0, 48; # 35 2;
-        out r0; # 37 1;
-        jmp 30; # 38 2;
-        pop r1; # 40 1;
-        pop r0; # 41 1;
-        ret; # 42 1;
-
-        #start block readInt10;
-        push r1; # 43 1;
-        mov r0, 0; # 44 2;
-
-        #start block :46;
-        input r1; # 46 1;
-        sub r1, 48; # 47 2;
-        j< 60; # 49 2;
-        cmp r1, 9; # 51 2;
-        j> 60; # 53 2;
-        mul r0, 10; # 55 2;
-        add r0, r1; # 57 1;
-        jmp 46; # 58 2;
-        resIn; # 60 1;
-        pop r1; # 61 1;
-        ret; # 62 1;
-
-        #start block main;
-        call 2; # 63 2;
-        call 43; # 65 2;
-        mov r3, r0; # 67 1;
-        mov r0, 1; # 68 2;
-        mov r5, 0; # 70 2;
-
-        #start block :72;
-        sub r3, 1; # 72 2;
-        j== 102; # 74 2;
-        inc r0; # 76 1;
-        mov r1, r5; # 77 1;
-
-        #start block :78;
-        sub r1, 1; # 78 2;
-        j< 94; # 80 2;
-        get r4, r1; # 82 1;
-        mov r2, r0; # 83 1;
-        mod r2, r4; # 84 1;
-        sub r2; # 85 1;
-        j== 100; # 86 2;
-        sub s0, 2; # 88 2;
-        j=< 94; # 90 2;
-        jmp 78; # 92 2;
-        #save=94;
-        inc r5; # 94 1;
-        push r0; # 95 1;
-        call 19; # 96 2;
-        out 32; # 98 2;
-        #notSave=100;
-        jmp 72; # 100 2;
-        exit 0; # 102 2;
-
-        run
+        \(exampleProgram("SieveOfEratosthenes"))
         
         7
         """
         let pool = Command2Pool(vm: vm)
         let parser = Command2Parser(commands: pool.commands, vm: vm)
         let core = MicroCore(pool: pool, vm: vm)
-        let out = brainfuckInterpreter(input: code, &memory) {
+        let out = brainfuckInterpreter(input: code, &memory, fast: true) {
             vm.initMemory()
             parser.loadProgram()
             core.loop()
         }
         XCTAssert(out.hasSuffix("2 3 5 7 "))
+    }
+    
+    func test14RunProgram() {
+        var memory: [UInt8] = .init(repeating: 0, count: 256 * 256 * 50)
+        let vm = VirtualMachine()
+        let code = """
+        \(exampleProgram("bfemu"))
+        
+        ++++++++++[>+++++++>++++++++++>+++>++++<
+        <<<-]>++.>+.+++++++..+++.>>++++.<++.<+++
+        +++++.--------.+++.------.--------.>+.;
+        """
+        let pool = Command2Pool(vm: vm)
+        let parser = Command2Parser(commands: pool.commands, vm: vm)
+        let core = MicroCore(pool: pool, vm: vm)
+        let out = brainfuckInterpreter(input: code, &memory, fast: true) {
+            vm.initMemory()
+            parser.loadProgram()
+            core.loop()
+        }
+        XCTAssert(out.hasSuffix("Hello, world!"))
     }
 }
