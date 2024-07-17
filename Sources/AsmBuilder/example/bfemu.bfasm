@@ -39,169 +39,342 @@ pop r1; # 41 1;
 pop r0; # 42 1;
 ret; # 43 1;
 
+
+#def MEMORY_SIZE 4096;
+
+
+#def CODE_MOVE_RIGHT 256;
+
+#def CODE_MOVE_LEFT 512;
+
+#def CODE_LOOP_START 768;
+
+#def CODE_LOOP_END 1024;
+
+#def CODE_INPUT 1280;
+
+#def CODE_OUTPUT 1536;
+
+#def CODE_ZERO 1792;
+
 #start block main;
 call 2; # 44 2;
 mov r0, cs; # 46 1;
-add r0, 1; # 47 2;
-#current command;
-
-
-
-#load program;
+mod r0, 256; # 47 2;
 
 #start block :49;
-input r1; # 49 1;
-cmp r1, 59; # 50 2;
-j== 57; # 52 2;
-push r1; # 54 1;
-jmp 49; # 55 2;
-out 68; # 57 2;
-out 105; # 59 2;
-out 100; # 61 2;
-out 32; # 63 2;
-out 76; # 65 2;
-out 111; # 67 2;
-out 97; # 69 2;
-out 100; # 71 2;
-out 58; # 73 2;
-mov s0, cs; # 75 1;
-sub s0, r0; # 76 1;
-call 19; # 77 2;
-mov r2, cs; # 79 1;
-add r2, 2; # 80 2;
- # start memory;
-add r3, 0; # 82 2;
- # current memory;
-mov r4, r2; # 84 1;
-add r4, r3; # 85 1;
+cmp r0, 0; # 49 2;
+j== 57; # 51 2;
+mov r1, 256; # 53 2;
+sub r1, r0; # 55 1;
+add cs, r1; # 56 1;
+mov r2, cs; # 57 1;
+add r2, 512; # 58 2;
+mov r0, r2; # 60 1;
 
-#start block mainLoop;
-mov r1, ptrr0; # 86 1;
-inc r0; # 87 1;
 
-#start block :88;
-cmp r1, 43; # 88 2;
-j!= 103; # 90 2;
-mov r5, ptrr4; # 92 1;
-inc r5; # 93 1;
+    #load program;
 
-#start block :94;
-cmp r5, 256; # 94 2;
-j!= 100; # 96 2;
-mov r5, 0; # 98 2;
-mov ptrr4, r5; # 100 1;
-jmp 86; # 101 2;
+#start block readLoop;
+mov r5, 0; # 61 2;
 
-#start block :103;
-cmp r1, 45; # 103 2;
-j!= 118; # 105 2;
-mov r5, ptrr4; # 107 1;
+#start block Sum;
+input r1; # 63 1;
 
-#start block :108;
-cmp r5, 0; # 108 2;
-j!= 114; # 110 2;
-mov r5, 256; # 112 2;
-dec r5; # 114 1;
-mov ptrr4, r5; # 115 1;
-jmp 86; # 116 2;
+#start block :64;
+cmp r5, 256; # 64 2;
+j!= 70; # 66 2;
+mov r5, 0; # 68 2;
 
-#start block :118;
-cmp r1, 62; # 118 2;
-j!= 133; # 120 2;
-inc r3; # 122 1;
+#start block :70;
+cmp r5, 65535; # 70 2;
+j!= 76; # 72 2;
+mov r5, 255; # 74 2;
 
-#start block :123;
-cmp r3, 4096; # 123 2;
-j!= 129; # 125 2;
-mov r3, 0; # 127 2;
-mov r4, r2; # 129 1;
-add r4, r3; # 130 1;
-jmp 86; # 131 2;
+#start block :76;
+cmp r1, 43; # 76 2;
+j!= 83; # 78 2;
+inc r5; # 80 1;
+jmp 63; # 81 2;
 
-#start block :133;
-cmp r1, 60; # 133 2;
-j!= 146; # 135 2;
+#start block :83;
+cmp r1, 45; # 83 2;
+j!= 90; # 85 2;
+dec r5; # 87 1;
+jmp 63; # 88 2;
+resIn; # 90 1;
 
-#start block :137;
-cmp r3, 0; # 137 2;
-j!= 143; # 139 2;
-mov r3, 4096; # 141 2;
-dec r3; # 143 1;
-jmp 86; # 144 2;
+#start block :91;
+cmp r5, 0; # 91 2;
+j== 97; # 93 2;
+mov ptrr2, r5; # 95 1;
+inc r2; # 96 1;
+mov r5, 0; # 97 2;
+mov r4, 0; # 99 2;
 
-#start block :146;
-cmp r1, 91; # 146 2;
-j!= 178; # 148 2;
+#start block Mov;
+input r1; # 101 1;
 
-#start block :150;
-cmp ptrr4, 0; # 150 2;
-j== 156; # 152 2;
-jmp 86; # 154 2;
-mov r5, 1; # 156 2;
+#start block :102;
+cmp r1, 62; # 102 2;
+j!= 109; # 104 2;
+inc r5; # 106 1;
+jmp 101; # 107 2;
 
-#start block :158;
-cmp r5, 0; # 158 2;
-j== 176; # 160 2;
-mov r1, ptrr0; # 162 1;
-inc r0; # 163 1;
+#start block :109;
+cmp r1, 60; # 109 2;
+j!= 116; # 111 2;
+inc r4; # 113 1;
+jmp 101; # 114 2;
+resIn; # 116 1;
 
-#start block :164;
-cmp r1, 91; # 164 2;
-j!= 169; # 166 2;
-inc r5; # 168 1;
+#start block :117;
+cmp r4, r5; # 117 1;
+j=< 136; # 118 2;
+sub r4, r5; # 120 1;
 
-#start block :169;
-cmp r1, 93; # 169 2;
-j!= 174; # 171 2;
-dec r5; # 173 1;
-jmp 158; # 174 2;
-jmp 86; # 176 2;
+#start block :121;
+cmp r4, 256; # 121 2;
+j< 132; # 123 2;
+mov ptrr2, 512; # 125 2;
+inc r2; # 127 1;
+mov ptrr2, r4; # 128 1;
+inc r2; # 129 1;
+jmp 136; #skip else block 130 2;
 
-#start block :178;
-cmp r1, 93; # 178 2;
-j!= 214; # 180 2;
+#else block else:132;
+add r4, 512; # 132 2;
+mov ptrr2, r4; # 134 1;
+inc r2; # 135 1;
 
-#start block :182;
-cmp ptrr4, 0; # 182 2;
-j!= 188; # 184 2;
-jmp 86; # 186 2;
-mov r5, 1; # 188 2;
-sub r0, 2; # 190 2;
+#start block :136;
+cmp r5, r4; # 136 1;
+j=< 155; # 137 2;
+sub r5, r4; # 139 1;
 
-#start block :192;
-cmp r5, 0; # 192 2;
-j== 210; # 194 2;
-mov r1, ptrr0; # 196 1;
-dec r0; # 197 1;
+#start block :140;
+cmp r5, 256; # 140 2;
+j< 151; # 142 2;
+mov ptrr2, 256; # 144 2;
+inc r2; # 146 1;
+mov ptrr2, r5; # 147 1;
+inc r2; # 148 1;
+jmp 155; #skip else block 149 2;
 
-#start block :198;
-cmp r1, 93; # 198 2;
-j!= 203; # 200 2;
-inc r5; # 202 1;
+#else block else:151;
+add r5, 256; # 151 2;
+mov ptrr2, r5; # 153 1;
+inc r2; # 154 1;
 
-#start block :203;
-cmp r1, 91; # 203 2;
-j!= 208; # 205 2;
-dec r5; # 207 1;
-jmp 192; # 208 2;
-add r0, 2; # 210 2;
-jmp 86; # 212 2;
+#start block :155;
+cmp r5, 0; # 155 2;
+j== 161; # 157 2;
+jmp 61; # 159 2;
 
-#start block :214;
-cmp r1, 44; # 214 2;
-j!= 221; # 216 2;
-input ptrr4; # 218 1;
-jmp 86; # 219 2;
+#start block :161;
+cmp r4, 0; # 161 2;
+j== 167; # 163 2;
+jmp 61; # 165 2;
+input r1; # 167 1;
+
+#start block :168;
+cmp r1, 91; # 168 2;
+j!= 179; # 170 2;
+mov ptrr2, 768; # 172 2;
+inc r2; # 174 1;
+push r2; # 175 1;
+inc r2; # 176 1;
+jmp 61; # 177 2;
+
+#start block :179;
+cmp r1, 93; # 179 2;
+j!= 212; # 181 2;
+pop r5; # 183 1;
+mov r4, r5; # 184 1;
+inc r4; # 185 1;
+mov r3, r4; # 186 1;
+
+#start block :187;
+cmp r3, 1; # 187 2;
+j!= 204; # 189 2;
+dec r2; # 191 1;
+mov r3, ptrr2; # 192 1;
+
+#start block :193;
+cmp r3, 255; # 193 2;
+j!= 203; # 195 2;
+dec r2; # 197 1;
+mov ptrr2, 1792; # 198 2;
+inc r2; # 200 1;
+jmp 61; # 201 2;
+inc r2; # 203 1;
+mov ptrr2, 1024; # 204 2;
+inc r2; # 206 1;
+mov ptrr2, r4; # 207 1;
+inc r2; # 208 1;
+mov ptrr5, r2; # 209 1;
+jmp 61; # 210 2;
+
+#start block :212;
+cmp r1, 46; # 212 2;
+j!= 221; # 214 2;
+mov ptrr2, 1536; # 216 2;
+inc r2; # 218 1;
+jmp 61; # 219 2;
 
 #start block :221;
-cmp r1, 46; # 221 2;
-j!= 228; # 223 2;
-out ptrr4; # 225 1;
-jmp 86; # 226 2;
+cmp r1, 44; # 221 2;
+j!= 230; # 223 2;
+mov ptrr2, 1280; # 225 2;
+inc r2; # 227 1;
+jmp 61; # 228 2;
 
-#start block :228;
-cmp r1, 0; # 228 2;
-j== 234; # 230 2;
-jmp 86; # 232 2;
-exit 0; # 234 2;
+#start block :230;
+cmp r1, 59; # 230 2;
+j!= 239; # 232 2;
+mov ptrr2, 0; # 234 2;
+inc r2; # 236 1;
+jmp 241; # 237 2;
+jmp 61; # 239 2;
+#endRead=241;
+out 10; # 241 2;
+out 68; # 243 2;
+out 105; # 245 2;
+out 100; # 247 2;
+out 32; # 249 2;
+out 108; # 251 2;
+out 111; # 253 2;
+out 97; # 255 2;
+out 100; # 257 2;
+out 58; # 259 2;
+mov s0, r2; # 261 1;
+sub s0, r0; # 262 1;
+call 19; # 263 2;
+out 10; # 265 2;
+mov r3, r0; # 267 1;
+
+#start block printLoop;
+jmp 286; # 268 2;
+
+#start block :270;
+cmp r3, r2; # 270 1;
+j=> 286; # 271 2;
+mov s0, r3; # 273 1;
+call 19; # 274 2;
+out 58; # 276 2;
+mov s0, ptrr3; # 278 1;
+call 19; # 279 2;
+inc r3; # 281 1;
+out 10; # 282 2;
+jmp 268; # 284 2;
+
+    #out '\n';
+add r2, 1; # 286 2;
+mov r3, 0; # 288 2;
+mov r4, r2; # 290 1;
+mov r5, 0; # 291 2;
+
+#start block runLoop;
+mov r1, ptrr0; # 293 1;
+inc r0; # 294 1;
+
+#start block :295;
+cmp r1, 1792; # 295 2;
+j!= 303; # 297 2;
+mov r5, 0; # 299 2;
+jmp 293; # 301 2;
+
+#start block :303;
+cmp r1, 1536; # 303 2;
+j!= 310; # 305 2;
+out r5; # 307 1;
+jmp 293; # 308 2;
+
+#start block :310;
+cmp r1, 1280; # 310 2;
+j!= 317; # 312 2;
+input r5; # 314 1;
+jmp 293; # 315 2;
+
+#start block :317;
+cmp r1, 1024; # 317 2;
+j!= 331; # 319 2;
+
+#start block :321;
+cmp r5, 0; # 321 2;
+j== 328; # 323 2;
+mov r0, ptrr0; # 325 1;
+jmp 293; # 326 2;
+inc r0; # 328 1;
+jmp 293; # 329 2;
+
+#start block :331;
+cmp r1, 768; # 331 2;
+j!= 345; # 333 2;
+
+#start block :335;
+cmp r5, 0; # 335 2;
+j!= 342; # 337 2;
+mov r0, ptrr0; # 339 1;
+jmp 293; # 340 2;
+inc r0; # 342 1;
+jmp 293; # 343 2;
+
+#start block :345;
+cmp r1, 512; # 345 2;
+j< 362; # 347 2;
+sub r1, 512; # 349 2;
+
+#start block :351;
+cmp r1, 0; # 351 2;
+j== 358; # 353 2;
+sub r3, r1; # 355 1;
+jmp 394; # 356 2;
+sub r3, ptrr0; # 358 1;
+inc r0; # 359 1;
+jmp 394; # 360 2;
+
+#start block :362;
+cmp r1, 256; # 362 2;
+j< 379; # 364 2;
+sub r1, 256; # 366 2;
+
+#start block :368;
+cmp r1, 0; # 368 2;
+j== 375; # 370 2;
+add r3, r1; # 372 1;
+jmp 394; # 373 2;
+add r3, ptrr0; # 375 1;
+inc r0; # 376 1;
+jmp 394; # 377 2;
+
+#start block :379;
+cmp r1, 0; # 379 2;
+j!= 385; # 381 2;
+jmp 412; # 383 2;
+add r5, r1; # 385 1;
+
+#start block :386;
+cmp r5, 255; # 386 2;
+j=< 392; # 388 2;
+sub r5, 256; # 390 2;
+jmp 293; # 392 2;
+#updatePosition=394;
+mov ptrr4, r5; # 394 1;
+
+#start block :395;
+cmp r3, 4096; # 395 2;
+j< 401; # 397 2;
+mod r3, 4096; # 399 2;
+
+#start block :401;
+cmp r3, 0; # 401 2;
+j=> 407; # 403 2;
+add r3, 4096; # 405 2;
+mov r4, r2; # 407 1;
+add r4, r3; # 408 1;
+mov r5, ptrr4; # 409 1;
+jmp 293; # 410 2;
+#endRunLoop=412;
+exit 0; # 412 2;
 run

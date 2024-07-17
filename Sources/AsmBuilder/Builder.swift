@@ -74,7 +74,14 @@ class Builder {
             openFile(elements[1])
             return
         }
+        if elements[0] == "#def" {
+            assert(elements.count == 3)
+            currentBlock.labels["\(elements[1])"] = Int(elements[2])!
+            currentBlock.appendRow(shift + input + ";")
+            return
+        }
         if elements[0] == "if" {
+            assert(elements.count == 4)
             let a = elements[1]
             let con = elements[2]
             let b = elements[3]
@@ -84,8 +91,6 @@ class Builder {
             currentBlock.labels["start"] = index
             currentBlock.appendRow(shift + "#start block \(name);")
             
-            print("o :\(input.replacingOccurrences(of: "\n", with: "").replacingOccurrences(of: "\t", with: ""))")
-
             var size = (checkArgument(argument(a)) || checkArgument(argument(b))) ? 2 : 1
             index += size
             currentBlock.appendRow(shift + "cmp \(argument(a)), \(argument(b)); # \(index - size) \(size);")
@@ -93,32 +98,32 @@ class Builder {
             size = 2
             if con == "==" {
                 index += 2
-                currentBlock.appendRow("j!= %end; # \(index - size) \(size);")
+                currentBlock.appendRow("j!= %skipTrue%; # \(index - size) \(size);")
                 return
             }
             if con == "!=" {
                 index += 2
-                currentBlock.appendRow("j== %end; # \(index - size) \(size);")
+                currentBlock.appendRow("j== %skipTrue%; # \(index - size) \(size);")
                 return
             }
             if con == ">" {
                 index += 2
-                currentBlock.appendRow("j=< %end; # \(index - size) \(size);")
+                currentBlock.appendRow("j=< %skipTrue%; # \(index - size) \(size);")
                 return
             }
             if con == ">=" {
                 index += 2
-                currentBlock.appendRow("j< %end; # \(index - size) \(size);")
+                currentBlock.appendRow("j< %skipTrue%; # \(index - size) \(size);")
                 return
             }
             if con == "<=" {
                 index += 2
-                currentBlock.appendRow("j> %end; # \(index - size) \(size);")
+                currentBlock.appendRow("j> %skipTrue%; # \(index - size) \(size);")
                 return
             }
             if con == "<" {
                 index += 2
-                currentBlock.appendRow("j=> %end; # \(index - size) \(size);")
+                currentBlock.appendRow("j=> %skipTrue%; # \(index - size) \(size);")
                 return
             }
             assert(false)
@@ -134,15 +139,29 @@ class Builder {
             currentBlock = .init(name: name, parent: currentBlock)
             currentBlock.labels["start"] = index
             currentBlock.appendRow(shift + "#start block \(name);")
-            print("o :\(input.replacingOccurrences(of: "\n", with: "").replacingOccurrences(of: "\t", with: ""))")
             return
         }
-        if elements[0] == "endBlock" {
+        if elements[0] == "endBlock" || elements[0] == "else" {
+            let elseName = "elseEndIndex:\(index)"
             currentBlock.labels["end"] = index
+            if elements[0] == "else" {
+                index += 2;
+                currentBlock.appendRow("jmp %\(elseName)%; #skip else block \(index - 2) \(2);")
+            }
+            currentBlock.labels["skipTrue"] = index
             let text = currentBlock.link()
+            let endLabel = currentBlock.endLabel
             currentBlock = currentBlock.parent!
+            if let endLabel {
+                currentBlock.labels[endLabel] = index
+            }
             currentBlock.appendRow(text)
-            print("c :\(input.replacingOccurrences(of: "\n", with: "").replacingOccurrences(of: "\t", with: ""))")
+            if elements[0] == "else" {
+                let name = "else:\(index)"
+                currentBlock = .init(name: name, parent: currentBlock, endLabel: elseName)
+                currentBlock.labels["start"] = index
+                currentBlock.appendRow(shift + "#else block \(name);")
+            }
             return
         }
         if elements[0] == "label" {
@@ -181,16 +200,18 @@ extension Builder {
         let name: String
         let parent: Block?
         var text: String = ""
+        var endLabel: String? = nil
         var labels: [String: Int] = [:]
         
-        init(name: String, parent: Block?) {
+        init(name: String, parent: Block?, endLabel: String? = nil) {
             self.name = name
             self.parent = parent
+            self.endLabel = endLabel
         }
         
         func link() -> String {
             labels.forEach { con in
-                text = text.replacingOccurrences(of: "%\(con.key)", with: "\(con.value)")
+                text = text.replacingOccurrences(of: "%\(con.key)%", with: "\(con.value)")
             }
             return text
         }

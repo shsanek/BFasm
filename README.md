@@ -21,7 +21,9 @@ Not all interpreters are capable of executing the kernel at normal speed. And ot
 
 The built-in assembler does not support labels. For convenience, I link examples using `AsmBuilder`
 
-1. [Sieve of Eratosthenes](Sources/AsmBuilder/example/SieveOfEratosthenes.bfasm) - after running, you need to provide the last number to check as input
+1. [Sieve of Eratosthenes](Sources/AsmBuilder/example/SieveOfEratosthenes.bfasm) - after `run`, you need to provide the last number to check as input
+2. [BF interpellator](Sources/AsmBuilder/example/bfemu.bfasm) - after `run` should be followed by a brain fuck program with a `;`, then the data for the input. I have tested this program very loosely so it may not work correctly for some cases.
+
 
 ## Virtual Machine Command Description
 

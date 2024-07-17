@@ -1,4 +1,4 @@
-jmp %main;
+jmp %main%;
 
 import functions/skipSpace.exbfasm;
 import functions/printInt10.exbfasm;
@@ -8,8 +8,8 @@ startBlock main;
     out 'i';
     out ':';
     
-    call %skipSpace;
-    call %readInt10;
+    call %skipSpace%;
+    call %readInt10%;
     
     out '\n';
     out 'o';
@@ -21,7 +21,7 @@ startBlock main;
 
     startBlock;
         sub r3, 1;
-        j== %end;
+        j== %end%;
 
         inc r0;
         
@@ -29,24 +29,24 @@ startBlock main;
         
         startBlock;
             sub r1, 1;
-            j< %save;
+            j< %save%;
             get r4, r1;
             mov r2, r0;
             mod r2, r4;
             sub r2;
-            j== %notSave;
+            j== %notSave%;
             sub s0, 2;
-            j=< %save;
-            jmp %start;
+            j=< %save%;
+            jmp %start%;
         endBlock;
         label save;
         inc r5;
         push r0;
         mov s0, r0;
-        call %printInt10;
+        call %printInt10%;
         out '\s';
         label notSave;
-        jmp %start;
+        jmp %start%;
     endBlock;
 endBlock;
 
